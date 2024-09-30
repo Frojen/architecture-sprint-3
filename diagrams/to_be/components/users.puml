@@ -1,0 +1,23 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container(gateway, "API Gateway", "nginx", "Маршрутизация запросов к микросервису")
+Container(devices, "Управление устройствами", "python", "Управление и конфигурирование устройств")
+
+Container_Boundary(users, "Микросервис пользователи") {
+
+    Component(сontroller, "User Controller", "", "Обрабатка запросов")
+    Component(service, "User Service", "", "Бизнес-логика")
+
+    ComponentDb(db_users, "База данных", "PostgreSQL", "Данные пользователей")
+
+    Rel(сontroller, service, "Вызов методов")
+    Rel_L(service, db_users, "Получает и сохраняет данные пользователей")
+
+}
+
+Rel(gateway, сontroller, "Запросы на управление пользователями и учетными записями", "HTTP")
+Rel_R(service, devices, "Удаление устройств пользователя", "HTTP")
+
+SHOW_LEGEND()
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container(gateway, "API Gateway", "nginx", "Маршрутизация запросов к микросервису")
+Container(devices, "Управление устройствами", "python", "Управление и конфигурирование устройств")
+
+
+Container_Boundary(users, "Микросервис сценарии") {
+
+    Component(сontroller, "Scenarios Controller", "", "Обрабатка запросов")
+    Component(service, "Scenarios Service", "", "Бизнес-логика")
+    Component(cron, "Scenarios cron", "", "Выполнения сценариев по расписанию")
+
+    ContainerDb(db_scenarios, "База данных", "PostgreSQL", "Данные сценариев")
+
+    Rel(сontroller, service, "Вызов методов")
+    Rel_L(service, db_scenarios, "Получает и сохраняет данные сценариев")
+    Rel(service, cron, "Вызов методов")
+    Rel(cron, db_scenarios, "Получает данные сценариев")
+
+}
+
+Rel(gateway, сontroller, "Запросы на управление сценариями", "HTTP")
+Rel(devices, сontroller, "Удаление сценариев пользователя", "HTTP")
+Rel_R(cron, devices, "Конфигурирование устройств", "HTTP")
+
+SHOW_LEGEND()
+@enduml
