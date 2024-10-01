@@ -1,0 +1,90 @@
+services:
+  device_db:
+    container_name: device_db
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    restart: always
+    volumes:
+      - device_db_data:/var/lib/postgresql/data
+
+  telemetry_db:
+    container_name: telemetry_db
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5433:5432"
+    networks:
+      - app-network
+    restart: always
+    volumes:
+      - telemetry_db_data:/var/lib/postgresql/data
+
+  prestart_device:
+    build: devices
+    networks:
+      - app-network
+    depends_on:
+      - device_db
+    command: bash scripts/prestart.sh
+
+  devices:
+    container_name: devices
+    build: devices
+    ports:
+      - '8001:8000'
+    networks:
+      - app-network
+    restart: always
+    depends_on:
+      - prestart_device
+      - device_db
+
+  prestart_telemetry:
+    build: telemetry
+    networks:
+      - app-network
+    depends_on:
+      - telemetry_db
+    command: bash scripts/prestart.sh
+
+  telemetry:
+    container_name: telemetry
+    build: telemetry
+    ports:
+      - '8002:8000'
+    networks:
+      - app-network
+    restart: always
+    depends_on:
+      - prestart_telemetry
+      - telemetry_db
+
+  gateway:
+    container_name: gateway
+    image: nginx:latest
+    ports:
+      - '80:80'
+    networks:
+      - app-network
+    restart: always
+    volumes:
+      - ./nginx:/etc/nginx/
+
+
+networks:
+  app-network:
+    name: app-network
+
+volumes:
+  device_db_data:
+  telemetry_db_data:
