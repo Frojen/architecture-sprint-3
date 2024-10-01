@@ -1,0 +1,84 @@
+@startuml
+!include <C4/C4_Component>
+
+package "Device Service" {
+    class DeviceController {
+        +Page[DeviceResponse] get_all()
+        +DeviceResponse get(UUID)
+        +create(DeviceRequest)
+        +ConfigureRespponse configure(ConfigureRequest)
+        +ConfigureResponse get_info(UUID)
+        +delete(UUID)
+    }
+
+    class DeviceService {
+        -deviceRepository;
+
+        +Page[DeviceResponse] get_all()
+        +DeviceResponse get(UUID)
+        +create(DeviceRequest)
+        +ConfigureRespponse configure(ConfigureRequest)
+        +ConfigureResponse get_info(UUID)
+        +delete(UUID)
+    }
+
+    class DeviceRepository {
+        +save(DeviceSchema)
+        +update(DeviceSchema)
+        +DeviceSchema get(UUID)
+        +List[DeviceSchema] get_all();
+    }
+
+    class DeviceConfigure {
+        +DeviceResponse configure(DeviceSchema);
+        +DeviceResponse get_configuration(DeviceSchema);
+    }
+
+    class DeviceSchema {
+        -UUID id;
+        -UUID user_id;
+        -str name;
+        -str type;
+        -str description;
+        -str connection_data;
+    }
+
+    class DeviceRequest {
+        -UUID user_id;
+        -str name;
+        -str type;
+        -str description;
+        -str connection_data;
+    }
+
+    class DeviceResponse {
+        -UUID id;
+        -UUID user_id;
+        -str name;
+        -str type;
+        -str description;
+        -str connection_data;
+    }
+
+    class ConfigureRequest {
+        -UUID user_id;
+        -UUID device_id;
+        -str configuration_data;
+    }
+
+    class ConfigureResponse {
+        -str configuration_data;
+    }
+
+    DeviceRepository --o DeviceService: "read write db"
+    DeviceSchema --o DeviceService: "Use"
+    DeviceResponse --o DeviceService: "Use"
+    DeviceRequest --o DeviceService: "Use"
+    ConfigureResponse --o DeviceService: "Use"
+    ConfigureRequest --o DeviceService: "Use"
+
+    DeviceService -> TelemetryApapter: "Call telemetry routes"
+    DeviceService -> DeviceConfigure: "Manipulate devices"
+    DeviceController -> DeviceService: "Manipulate devices data"
+}
+@enduml

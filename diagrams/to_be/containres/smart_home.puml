@@ -1,0 +1,42 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Conatainer diagram for Smart Home
+
+Person(user, "Пользователь", "Пользователь приложения", $type="user")
+
+System_Boundary(system, "Smart Home") {
+    Container(gateway, "API Gateway", "nginx", "Маршрутизация запросов к микросервисам")
+    Container(frontend, "Веб приложение", "react", "Веб интерфейс для взаимодействия пользователей с приложением")
+    Container(users, "Пользователи", "python", "Управление учетными данными пользователей")
+    Container(devices, "Управление устройствами", "python", "Управление и конфигурирование устройств")
+    Container(scenarios, "Управление сценариями", "python", "Управление пользовательскими сценариями")
+    Container(telemetry, "Телеметрия", "python", "Обработка динамически изменяющимися данными")
+
+    ContainerDb(db_users, "База данных", "PostgreSQL", "Данные пользователей")
+    ContainerDb(db_devices, "База данных", "PostgreSQL", "Данные устройств")
+    ContainerDb(db_scenarios, "База данных", "PostgreSQL", "Данные сценариев")
+    ContainerDb(db_telemetry, "База данных", "PostgreSQL", "Данные телеметрии")
+}
+
+System_Ext(device, "Устройство", "Управляет установленной в доме системой, возвращает текущую конфигурацию")
+System_Ext(sensor, "Датчик", "Предоставляет информацию о состоянии датчика")
+
+Rel(user, frontend, "Uses", "HTTPS")
+Rel(frontend, gateway, "Uses", "HTTPS")
+Rel(gateway, users, "Uses", "HTTP")
+Rel(gateway, devices, "Uses", "HTTP")
+Rel(gateway, scenaries, "Uses", "HTTP")
+Rel(gateway, telemetry, "Uses", "HTTP")
+Rel_L(devices, telemetry, "Uses", "HTTP")
+Rel(users, db_users, "Read and write", "TCP\IP")
+Rel(users, devices, "Uses", "HTTP")
+Rel_L(devices, scenarios, "Uses", "HTTP")
+Rel(devices, db_devices, "Read and write", "TCP\IP")
+Rel(scenarios, db_scenarios, "Read and write", "TCP\IP")
+Rel(telemetry, db_telemetry, "Read and write", "TCP\IP")
+Rel(devices, device, "Uses", "HTTP\HTTPS")
+Rel(telemetry, sensor, "Uses", "HTTP\HTTPS")
+
+SHOW_LEGEND()
+@enduml

@@ -1,0 +1,73 @@
+@startuml
+left to right direction
+
+entity "User" as User{
+  * id : UUID
+  * username : String
+  * password : String
+  * email : String
+}
+
+entity "House" as House{
+  * id : UUID
+  * user_id: UUID
+  * address : String
+}
+
+entity "Device" as Device{
+  * id : UUID
+  * type_id : UUID
+  * user_id : UUID
+  * house_id : UUID
+  * serial_number : String
+  * name : String
+  * description : String
+  * connection_data : String
+}
+
+entity "DeviceType" as DeviceType{
+  * id : UUID
+  * type_name : String
+  * description : String
+}
+
+entity "DeviceConfiguration" as DeviceConfiguration{
+  * device_id : UUID
+  * configuration : JSON
+}
+
+entity "Sensor" as Sensor{
+  * id : UUID
+  * device_id : UUID
+  * user_id : UUID
+  * name : String
+  * description: String
+  * connection_data : String
+}
+
+entity "TelemetryData" as TelemetryData{
+  * id : UUID
+  * sensor_id : UUID
+  * timestamp : Timestamp
+  * data : JSON
+}
+
+entity "Scenario" as Scenario{
+  * id : UUID
+  * user_id: UUID
+  * device_id : UUID
+  * sheduler_data : JSON
+  * configuration : JSON
+  * data : JSON
+}
+
+User ||--o{ House : owns
+House ||--o{ Device : contains
+Device }o--|| DeviceType : is_a
+Device ||--o| DeviceConfiguration : has
+Device ||--o{ Sensor : has
+Sensor ||--o{ TelemetryData : generates
+Scenario }o-r-|| User : has
+Scenario }o--|| Device : has
+
+@enduml

@@ -1,0 +1,32 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container(gateway, "API Gateway", "nginx", "Маршрутизация запросов к микросервису")
+Container(scenarios, "Управление сценариями", "python", "Управление пользовательскими сценариями")
+Container(telemetry, "Телеметрия", "python", "Обработка динамически изменяющимися данными")
+Container(users, "Пользователи", "python", "Управление учетными данными пользователей")
+
+ContainerDb(db_devices, "База данных", "PostgreSQL", "Данные устройств")
+
+System_Ext(device, "Устройство", "Управляет установленной в доме системой, возвращает текущую конфигурацию")
+
+Container_Boundary(devices, "Микросервис управления устройствами") {
+
+    Component(сontroller, "Devices Controller", "", "Обрабатка запросов")
+    Component(service, "Devices Service", "", "Бизнес-логика")
+    Component(devices_controller, "Devices Controller", "", "Взаимодействие с устройством")
+
+    Rel(сontroller, service, "Вызов методов")
+    Rel_L(service, db_devices, "Получает и сохраняет данные устройств")
+    Rel(service, devices_controller, "Вызов методов")
+
+}
+
+Rel(gateway, сontroller, "Запросы на получение и управление устройствами", "HTTP")
+Rel(users, сontroller, "Удаление устройств", "HTTP")
+Rel_R(service, scenarios, "Удаление сценариев устройств", "HTTP")
+Rel_R(service, telemetry, "Отправка данных для телеметрии устройств", "HTTP")
+Rel_R(devices_controller, device, "Взаимодействие с устройствами", "HTTP")
+
+SHOW_LEGEND()
+@enduml

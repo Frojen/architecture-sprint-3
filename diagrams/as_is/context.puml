@@ -1,0 +1,18 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title System Context diagram for Smart Home Monolith
+
+Person(user, "Пользователь", "Пользователь имеющий устройства подключенные к приложению", $type="user")
+
+System(application, "Smart Home Monolith", "Управление отоплением и мониторинг температуры", $type="Software System")
+
+System_Ext(system, "Система отопления", "Управляет установленной в доме системой отопления")
+System_Ext(sensor, "Температурный датчик", "Предоставляет текущуюю температуру в доме")
+
+Rel(user, application, "Управление системой отопления и просмотр текущей температуры")
+Rel(application, system, "Управление системой отопления")
+Rel(application, sensor, "Получение данных о температуре")
+
+SHOW_LEGEND()
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container(gateway, "API Gateway", "nginx", "Маршрутизация запросов к микросервису")
+Container(devices, "Управление устройствами", "python", "Управление и конфигурирование устройств")
+
+System_Ext(sensor, "Датчик", "Предоставляет информацию о состоянии датчика")
+
+Container_Boundary(users, "Микросервис телеметрия") {
+
+    Component(сontroller, "Telemetry Controller", "", "Обрабатка запросов")
+    Component(service, "Telemetry Service", "", "Бизнес-логика")
+    Component(cron, "Telemetry cron", "", "Опрос датчиков по расписанию")
+
+    ContainerDb(db_telemetry, "База данных", "PostgreSQL", "Данные телеметрии")
+
+    Rel(сontroller, service, "Вызов методов")
+    Rel_L(service, db_telemetry, "Получает данные телеметрии")
+    Rel(service, cron, "Вызов методов")
+    Rel(cron, db_telemetry, "Сохраняет данные телеметрии")
+
+}
+
+Rel(gateway, сontroller, "Запросы на получение данных телеметрии", "HTTP")
+Rel(devices, сontroller, "Отправка данных для телеметрии устройств", "HTTP")
+Rel_R(cron, sensor, "Получение данных телеметрии", "HTTP")
+
+SHOW_LEGEND()
+@enduml
